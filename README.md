@@ -1,6 +1,6 @@
 # Hpfeeds
 
-TODO: Write a gem description
+This is a ruby implementation of HPFeeds protocol
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+TODO
 
 ## Contributing
 
