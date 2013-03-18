@@ -1,6 +1,7 @@
-# Hpfeeds
+# HPFeeds
 
-This gem should be used to make easy to interact (publish, subscribe) with a HPFeeds broker. At the moment it's just a gem naked skeleton, and an idea in my mind. Don't know how does it takes for me to write down something...
+This gem should be used to make easy to interact (publish, subscribe) with a [HPFeeds broker](https://redmine.honeynet.org/projects/hpfeeds/wiki).
+At the moment it's just a gem naked skeleton, and an idea in my mind. Don't know how does it takes for me to write down something...
 
 ## Installation
 
