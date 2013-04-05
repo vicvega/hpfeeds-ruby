@@ -1,5 +1,7 @@
-require "hpfeeds/version"
+require 'hpfeeds/version'
 
-module Hpfeeds
-  # Your code goes here...
+module HPFeeds
+  autoload :Client, 'hpfeeds/client'
+  autoload :Exception, 'hpfeeds/exception'
+  autoload :Decoder, 'hpfeeds/decoder'
 end

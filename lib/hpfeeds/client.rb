@@ -22,15 +22,12 @@ module HPFeeds
       @reconnect = options[:reconnect] || true
       @sleepwait = options[:sleepwait] || 20
 
-		  @brokername = 'unknown'
-
-		  @connected = false
+      @connected = false
 		  @stopped   = false
 
-	  	@decoder = Decoder.new
-
-      @logger = Logger.new($stdout)
-      @logger.level = Logger::DEBUG
+	  	@decoder      = Decoder.new
+      @logger       = Logger.new($stdout)
+      @logger.level = Logger::INFO
 
       tryconnect
 	  end
@@ -41,9 +38,7 @@ module HPFeeds
 		      connect()
 		      break
 	      rescue => e
-	        message = "#{e.class} caugthed while connecting: #{e}\n"
-	        message += e.backtrace.join("\n")
-			    @logger.warn(message)
+			    @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
 			    sleep(@sleepwait)
 	      end
 		  end
@@ -58,8 +53,6 @@ module HPFeeds
       rescue => e
         raise Exception.new("Could not connect to broker: #{e}.")
       end
-      @logger.info("connected to #{@host}, port #{@port}")
-      @connected = true
       @logger.debug("waiting for data")
       header = recv_timeout(HEADERSIZE)
       opcode, len = @decoder.parse_header(header)
@@ -76,6 +69,8 @@ module HPFeeds
 			else
 				raise Exception('Expected info message at this point.')
       end
+      @logger.info("connected to #{@host}, port #{@port}")
+      @connected = true
       # set keepalive
       @socket.setsockopt(Socket::Option.bool(:INET, :SOCKET, :KEEPALIVE, true))
     end
@@ -111,24 +106,28 @@ module HPFeeds
 
     def run(message_callback, error_callback)
       begin
-
-        @logger.info "RUN #{@stopped}, #{@connected}"
-
-        while !@stopped and @connected
-          header = @socket.recv(HEADERSIZE)
-          opcode, len = @decoder.parse_header(header)
-          @logger.debug("received header, opcode = #{opcode}, len = #{len}")
-          data = @socket.recv(len)
-          @logger.debug("received #{data.length} bytes of data")
-          if opcode == OP_ERROR
-            error_callback.call(data)
-          elsif opcode == OP_PUBLISH
-            name, chan, payload = @decoder.parse_publish(data)
-            message_callback.call(name, chan, payload)
-		      end
+        while !@stopped
+          while @connected
+            header = @socket.recv(HEADERSIZE)
+            if header.empty?
+              @connected = false
+              break
+            end
+            opcode, len = @decoder.parse_header(header)
+            @logger.debug("received header, opcode = #{opcode}, len = #{len}")
+            data = @socket.recv(len)
+            @logger.debug("received #{data.length} bytes of data")
+            if opcode == OP_ERROR
+              error_callback.call(data)
+            elsif opcode == OP_PUBLISH
+              name, chan, payload = @decoder.parse_publish(data)
+              @logger.info("received #{payload.length} bytes of data from #{name} on channel #{chan}")
+              message_callback.call(name, chan, payload)
+		        end
+          end
+          @logger.debug("Lost connection, trying to connect again...")
+          tryconnect
         end
-        @logger.debug("Lost connection, trying to connect again...")
-        tryconnect
 
       rescue => e
         message = "#{e.class} caugthed in main loop: #{e}\n"

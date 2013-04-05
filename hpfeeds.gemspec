@@ -5,12 +5,12 @@ require 'hpfeeds/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "hpfeeds"
-  spec.version       = Hpfeeds::VERSION
+  spec.version       = HPFeeds::VERSION
   spec.authors       = ["Francesco Coda Zabetta"]
   spec.email         = ["francesco.codazabetta@gmail.com"]
   spec.description   = %q{Ruby client for HPFeeds protocol}
   spec.summary       = %q{Ruby client for HPFeeds protocol}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/vicvega/hpfeeds-ruby"
   spec.license       = "MIT"
 
   spec.files = Dir["{config,lib}/**/*"] + ["LICENSE.txt", "Rakefile", "README.md", 'CHANGELOG.md']
