@@ -1,3 +1,3 @@
-module Hpfeeds
-  VERSION = "0.0.1"
+module HPFeeds
+  VERSION = "0.1.0"
 end
