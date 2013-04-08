@@ -9,6 +9,7 @@ module HPFeeds
   OP_SUBSCRIBE = 4
 
   HEADERSIZE = 5
+  BUFSIZE    = 16384
 
   class Client
     def initialize(options)
@@ -79,6 +80,8 @@ module HPFeeds
     def subscribe(*channels, &block)
       if block_given?
         handler = block
+      else
+        raise ArgumentError.new('When subscribing to a channel, you have to provide a block as a callback for message handling')
       end
       for c in channels
         @logger.info("subscribing to #{c}")
@@ -152,7 +155,7 @@ module HPFeeds
     end
 
   private
-    def recv_timeout()
+    def recv_timeout(len=BUFSIZE)
       if IO.select([@socket], nil, nil, @timeout)
         @socket.recv(len)
       else
