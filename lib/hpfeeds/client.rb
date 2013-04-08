@@ -8,7 +8,6 @@ module HPFeeds
   OP_PUBLISH   = 3
   OP_SUBSCRIBE = 4
 
-  BUFSIZE    = 16384
   HEADERSIZE = 5
 
   class Client
@@ -69,7 +68,7 @@ module HPFeeds
         auth = @decoder.msg_auth(rand, @ident, @secret)
         @socket.send(auth, 0)
       else
-        raise Exception('Expected info message at this point.')
+        raise Exception.new('Expected info message at this point.')
       end
       @logger.info("connected to #{@host}, port #{@port}")
       @connected = true
@@ -87,7 +86,6 @@ module HPFeeds
         @socket.send(message, 0)
         @handlers[c] = handler unless handler.nil?
       end
-
     end
 
     def publish(data, *channels)
@@ -111,7 +109,7 @@ module HPFeeds
       end
     end
 
-    def run(message_callback, error_callback)
+    def run(error_callback = nil)
       begin
         while !@stopped
           while @connected
@@ -125,14 +123,17 @@ module HPFeeds
             data = @socket.recv(len)
             @logger.debug("received #{data.length} bytes of data")
             if opcode == OP_ERROR
-              error_callback.call(data)
+              unless error_callback.nil?
+                error_callback.call(data)
+              else
+                raise ErrorMessage.new(data)
+              end
             elsif opcode == OP_PUBLISH
               name, chan, payload = @decoder.parse_publish(data)
               @logger.info("received #{payload.length} bytes of data from #{name} on channel #{chan}")
               handler = @handlers[chan]
-              if handler.nil?
-                message_callback.call(name, chan, payload)
-              else
+              unless handler.nil?
+                # ignore unhandled messages
                 handler.call(name, chan, payload)
               end
             end
@@ -140,7 +141,9 @@ module HPFeeds
           @logger.debug("Lost connection, trying to connect again...")
           tryconnect
         end
-
+      rescue ErrorMessage => e
+        @logger.warn("#{e.class} caugthed in main loop: #{e}")
+        raise e
       rescue => e
         message = "#{e.class} caugthed in main loop: #{e}\n"
         message += e.backtrace.join("\n")
@@ -149,7 +152,7 @@ module HPFeeds
     end
 
   private
-    def recv_timeout(len=BUFSIZE)
+    def recv_timeout()
       if IO.select([@socket], nil, nil, @timeout)
         @socket.recv(len)
       else

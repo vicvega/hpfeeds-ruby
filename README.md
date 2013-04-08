@@ -35,14 +35,14 @@ end
 
 begin
   @hp = HPFeeds::Client.new ({
-    host: hpfeeds_server_name_here,
-    port:   10000,
-    ident:  'XXXX',
+    host:   hpfeeds_server_name_here,
+    port:   hpfeeds_port_number_here,  # default is 10000
+    ident:  'XXXXXX',
     secret: '123456'
   })
   channels = %w[ chan1 chan2 chanN ]
-  @hp.subscribe(*channels)
-  @hp.run(method(:on_data), method(:on_error))
+  @hp.subscribe(*channels) { |name, chan, payload| on_data(name, chan, payload) }
+  @hp.run(method(:on_error))
 
 rescue => e
   puts "Exception: #{e}"
@@ -62,7 +62,8 @@ end
 
 @hp.subscribe(chan6, chan7) { |name, chan, payload| custom_method(name, chan, payload) }
 ```
-In this case the first argument in ```@hp.run(method(:on_data), method(:on_error))``` is just a deafult handler, used for messages coming from unhandled channels.
+The argument in `@hp.run(method(:on_error))` is an handler for HPFeeds error messages (i.e. 'accessfail' or 'authfail'). It's optional: if you don't provide an handler, an exception will be raised (HPFeeds::ErrorMessage) in case of error messages.
+
 ## Contributing
 
 1. Fork it
