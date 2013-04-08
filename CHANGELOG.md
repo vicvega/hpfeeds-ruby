@@ -1,4 +1,4 @@
-#### current
+#### 0.1.1
 - major fixes:
  - separate handlers for messages from different chanels
  - better error messages handling
