@@ -24,13 +24,13 @@ Here is a basic example:
 require "hpfeeds"
 
 def on_data(name, chan, payload)
-	puts "[%s] %s: %s" % [ chan, name, payload ]
-	# just an example here...
-	@hp.publish('channel', 'message')
+  puts "[%s] %s: %s" % [ chan, name, payload ]
+  # just an example here...
+  @hp.publish('channel', 'message')
 end
 
 def on_error(data)
-	STDERR.puts "ERROR: " + data.inspect
+  STDERR.puts "ERROR: " + data.inspect
 end
 
 begin
@@ -50,7 +50,19 @@ ensure
   @hp.close if @hp
 end
 ```
+It's also possibile to set separate handlers for messages from different channels, as follows:
+```ruby
+@hp.subscribe(chan1, chan2) do
+  puts "Received something"
+end
 
+@hp.subscribe(chan3, chan4, chan5) do |name, chan|
+  puts "Received something on #{chan}, from #{name}"
+end
+
+@hp.subscribe(chan6, chan7) { |name, chan, payload| custom_method(name, chan, payload) }
+```
+In this case the first argument in ```@hp.run(method(:on_data), method(:on_error))``` is just a deafult handler, used for messages coming from unhandled channels.
 ## Contributing
 
 1. Fork it

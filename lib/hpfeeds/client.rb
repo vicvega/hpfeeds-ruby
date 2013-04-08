@@ -3,8 +3,8 @@ require 'socket'
 
 module HPFeeds
   OP_ERROR     = 0
-  OP_INFO	     = 1
-  OP_AUTH	     = 2
+  OP_INFO      = 1
+  OP_AUTH      = 2
   OP_PUBLISH   = 3
   OP_SUBSCRIBE = 4
 
@@ -12,7 +12,7 @@ module HPFeeds
   HEADERSIZE = 5
 
   class Client
-	  def initialize(options)
+    def initialize(options)
       @host   = options[:host]
       @port   = options[:port] || 10000
       @ident  = options[:ident]
@@ -23,25 +23,27 @@ module HPFeeds
       @sleepwait = options[:sleepwait] || 20
 
       @connected = false
-		  @stopped   = false
+      @stopped   = false
 
-	  	@decoder      = Decoder.new
+      @decoder      = Decoder.new
       @logger       = Logger.new($stdout)
       @logger.level = Logger::INFO
 
-      tryconnect
-	  end
+      @handlers = {}
 
-	  def tryconnect
-	    loop do
-		    begin
-		      connect()
-		      break
-	      rescue => e
-			    @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
-			    sleep(@sleepwait)
-	      end
-		  end
+      tryconnect
+    end
+
+    def tryconnect
+      loop do
+        begin
+          connect()
+          break
+        rescue => e
+          @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+          sleep(@sleepwait)
+        end
+      end
     end
 
     def connect
@@ -66,8 +68,8 @@ module HPFeeds
         @brokername = name
         auth = @decoder.msg_auth(rand, @ident, @secret)
         @socket.send(auth, 0)
-			else
-				raise Exception('Expected info message at this point.')
+      else
+        raise Exception('Expected info message at this point.')
       end
       @logger.info("connected to #{@host}, port #{@port}")
       @connected = true
@@ -75,12 +77,17 @@ module HPFeeds
       @socket.setsockopt(Socket::Option.bool(:INET, :SOCKET, :KEEPALIVE, true))
     end
 
-    def subscribe(*channels)
+    def subscribe(*channels, &block)
+      if block_given?
+        handler = block
+      end
       for c in channels
         @logger.info("subscribing to #{c}")
         message = @decoder.msg_subscribe(@ident, c)
         @socket.send(message, 0)
+        @handlers[c] = handler unless handler.nil?
       end
+
     end
 
     def publish(data, *channels)
@@ -122,8 +129,13 @@ module HPFeeds
             elsif opcode == OP_PUBLISH
               name, chan, payload = @decoder.parse_publish(data)
               @logger.info("received #{payload.length} bytes of data from #{name} on channel #{chan}")
-              message_callback.call(name, chan, payload)
-		        end
+              handler = @handlers[chan]
+              if handler.nil?
+                message_callback.call(name, chan, payload)
+              else
+                handler.call(name, chan, payload)
+              end
+            end
           end
           @logger.debug("Lost connection, trying to connect again...")
           tryconnect
@@ -132,8 +144,8 @@ module HPFeeds
       rescue => e
         message = "#{e.class} caugthed in main loop: #{e}\n"
         message += e.backtrace.join("\n")
-		    @logger.error(message)
-		  end
+        @logger.error(message)
+      end
     end
 
   private
