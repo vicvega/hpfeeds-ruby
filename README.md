@@ -50,7 +50,7 @@ ensure
   @hp.close if @hp
 end
 ```
-### Message handler
+### HPFeeds messages handler
 It's also possibile to set separate handlers for messages from different channels, as follows:
 ```ruby
 @hp.subscribe(chan1, chan2) do
@@ -63,7 +63,7 @@ end
 
 @hp.subscribe(chan6, chan7) { |name, chan, payload| custom_method(name, chan, payload) }
 ```
-### Errors handler
+### HPFeeds errors handler
 The argument in `@hp.run(method(:on_error))` is an handler for HPFeeds error messages (i.e. 'accessfail' or 'authfail').
 It's optional: if you don't provide any handler, an exception will be raised (HPFeeds::ErrorMessage) in case of error messages.
 
