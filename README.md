@@ -64,7 +64,11 @@ end
 @hp.subscribe(chan6, chan7) { |name, chan, payload| custom_method(name, chan, payload) }
 ```
 ### HPFeeds errors handler
-The argument in `@hp.run(method(:on_error))` is an handler for HPFeeds error messages (i.e. 'accessfail' or 'authfail').
+The argument in
+```ruby
+@hp.run(method(:on_error))
+```
+is an handler for HPFeeds error messages (i.e. `'accessfail'` or `'authfail'`).
 It's optional: if you don't provide any handler, an exception will be raised (HPFeeds::ErrorMessage) in case of error messages.
 
 ## Contributing
