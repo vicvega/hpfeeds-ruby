@@ -26,8 +26,9 @@ module HPFeeds
       @stopped   = false
 
       log_to    = options[:log_to] || STDOUT
-      @logger       = Logger.new(log_to)
-      @logger.level = get_log_level(options[:log_level])
+      log_level = options[:log_level] || :info
+      @logger   = Logger.new(log_to)
+      @logger.level = get_log_level(log_level)
 
       @decoder  = Decoder.new
       @handlers = {}
@@ -134,7 +135,7 @@ module HPFeeds
               end
             elsif opcode == OP_PUBLISH
               name, chan, payload = @decoder.parse_publish(data)
-              @logger.info("received #{payload.length} bytes of data from #{name} on channel #{chan}")
+              @logger.debug("received #{payload.length} bytes of data from #{name} on channel #{chan}")
               handler = @handlers[chan]
               unless handler.nil?
                 # ignore unhandled messages
@@ -165,15 +166,10 @@ module HPFeeds
     end
 
     def get_log_level(level)
-      return Logger::INFO if level.nil?
-      case level.to_s.downcase
-        when 'debug';   Logger::DEBUG
-        when 'info';    Logger::INFO
-        when 'warn';    Logger::WARN
-        when 'warning'; Logger::WARN
-        when 'error';   Logger::ERROR
-        when 'fatal';   Logger::FATAL
-      else Logger::INFO
+      begin
+        Logger.const_get(level.to_s.upcase)
+      rescue
+        raise ArgumentError.new("Unknow log level #{level}")
       end
     end
 
