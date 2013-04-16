@@ -169,7 +169,7 @@ module HPFeeds
       begin
         Logger.const_get(level.to_s.upcase)
       rescue
-        raise ArgumentError.new("Unknow log level #{level}")
+        raise ArgumentError.new("Unknown log level #{level}")
       end
     end
 
