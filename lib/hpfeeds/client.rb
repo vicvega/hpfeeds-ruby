@@ -25,10 +25,11 @@ module HPFeeds
       @connected = false
       @stopped   = false
 
-      @decoder      = Decoder.new
-      @logger       = Logger.new($stdout)
-      @logger.level = Logger::INFO
+      log_to    = options[:log_to] || STDOUT
+      @logger       = Logger.new(log_to)
+      @logger.level = get_log_level(options[:log_level])
 
+      @decoder  = Decoder.new
       @handlers = {}
 
       tryconnect
@@ -160,6 +161,19 @@ module HPFeeds
         @socket.recv(len)
       else
         raise Exception.new("Connection receive timeout.")
+      end
+    end
+
+    def get_log_level(level)
+      return Logger::INFO if level.nil?
+      case level.to_s.downcase
+        when 'debug';   Logger::DEBUG
+        when 'info';    Logger::INFO
+        when 'warn';    Logger::WARN
+        when 'warning'; Logger::WARN
+        when 'error';   Logger::ERROR
+        when 'fatal';   Logger::FATAL
+      else Logger::INFO
       end
     end
 

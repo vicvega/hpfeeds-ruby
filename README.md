@@ -71,6 +71,18 @@ The argument in
 is an handler for HPFeeds error messages (i.e. `'accessfail'` or `'authfail'`).
 It's optional: if you don't provide any handler, an exception will be raised (`HPFeeds::ErrorMessage`) in case of error messages.
 
+### Logging
+It's possibile to specify a path for log file (default is stdout) and a log level, as follows
+```ruby
+  @hp = HPFeeds::Client.new ({
+    host:   hpfeeds_server_name_here,
+    port:   hpfeeds_port_number_here,  # default is 10000
+    ident:  'XXXXXX',
+    secret: '123456',
+    log_to: path_to_log_file,          # default is STDOUT
+    log_level: :debug                  # default is info
+  })
+```
 ## Contributing
 
 1. Fork it

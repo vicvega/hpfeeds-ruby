@@ -1,9 +1,13 @@
+#### 0.1.2
+- major changes:
+ - added log_to and log_level options to HPFeeds::Client constructor
+
 #### 0.1.1
-- major fixes:
+- major changes:
  - separate handlers for messages from different chanels
  - better error messages handling
 
-- minor fixes:
+- minor changes:
  - documentation, indentation
 
 #### 0.1.0
