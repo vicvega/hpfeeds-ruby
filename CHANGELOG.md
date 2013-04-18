@@ -1,3 +1,12 @@
+#### 0.1.3
+- major changes:
+ - fixed bug in large feeds receiving
+ - added automatic subscription on reconnection
+ - fixed debug messages
+
+- minor changes:
+ - housekeeping
+
 #### 0.1.2
 - major changes:
  - added log_to and log_level options to HPFeeds::Client constructor

@@ -68,9 +68,9 @@ module HPFeeds
 
       if opcode == OP_INFO
         data = recv_timeout(len)
-        @logger.debug("received data = #{data}")
+        @logger.debug("received data = #{binary_to_hex(data)}")
         name, rand = @decoder.parse_info(data)
-        @logger.debug("received INFO, name = #{name}, rand = #{rand}")
+        @logger.debug("received INFO, name = #{name}, rand = #{binary_to_hex(rand)}")
         @brokername = name
         auth = @decoder.msg_auth(rand, @ident, @secret)
         @socket.send(auth, 0)
@@ -160,6 +160,10 @@ module HPFeeds
     end
 
   private
+    def binary_to_hex s
+      "0x#{s.unpack('H*')[0]}" rescue ''
+    end
+
     def subscribe_to_channel c
       @logger.info("subscribing to #{c}")
       message = @decoder.msg_subscribe(@ident, c)
