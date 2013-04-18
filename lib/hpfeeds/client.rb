@@ -9,7 +9,7 @@ module HPFeeds
   OP_SUBSCRIBE = 4
 
   HEADERSIZE = 5
-  BUFSIZE    = 16384
+  BLOCKSIZE  = 1024
 
   class Client
     def initialize(options)
@@ -30,8 +30,9 @@ module HPFeeds
       @logger   = Logger.new(log_to)
       @logger.level = get_log_level(log_level)
 
-      @decoder  = Decoder.new
-      @handlers = {}
+      @decoder = Decoder.new
+      @handlers   = {}
+      @subscribed = []
 
       tryconnect
     end
@@ -40,6 +41,9 @@ module HPFeeds
       loop do
         begin
           connect()
+          for c in @subscribed
+            subscribe_to_channel c
+          end
           break
         rescue => e
           @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
@@ -86,18 +90,15 @@ module HPFeeds
         raise ArgumentError.new('When subscribing to a channel, you have to provide a block as a callback for message handling')
       end
       for c in channels
-        @logger.info("subscribing to #{c}")
-        message = @decoder.msg_subscribe(@ident, c)
-        @socket.send(message, 0)
+        subscribe_to_channel c
         @handlers[c] = handler unless handler.nil?
+        @subscribed << c
       end
     end
 
     def publish(data, *channels)
       for c in channels
-        @logger.info("publish to #{c}: #{data}")
-        message = @decoder.msg_publish(@ident, c, data)
-        @socket.send(message, 0)
+        publish_to_channel c, data
       end
     end
 
@@ -125,8 +126,10 @@ module HPFeeds
             end
             opcode, len = @decoder.parse_header(header)
             @logger.debug("received header, opcode = #{opcode}, len = #{len}")
-            data = @socket.recv(len)
-            @logger.debug("received #{data.length} bytes of data")
+            data = ''
+            while data.size < len - HEADERSIZE
+              data += @socket.recv(BLOCKSIZE)
+            end
             if opcode == OP_ERROR
               unless error_callback.nil?
                 error_callback.call(data)
@@ -157,7 +160,19 @@ module HPFeeds
     end
 
   private
-    def recv_timeout(len=BUFSIZE)
+    def subscribe_to_channel c
+      @logger.info("subscribing to #{c}")
+      message = @decoder.msg_subscribe(@ident, c)
+      @socket.send(message, 0)
+    end
+
+    def publish_to_channel c, data
+      @logger.info("publish to #{c}: #{data}")
+      message = @decoder.msg_publish(@ident, c, data)
+      @socket.send(message, 0)
+    end
+
+    def recv_timeout(len)
       if IO.select([@socket], nil, nil, @timeout)
         @socket.recv(len)
       else
