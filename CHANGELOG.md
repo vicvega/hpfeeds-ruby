@@ -1,3 +1,7 @@
+#### 0.1.4
+- major changes:
+ - fixed bug in socket data receiving
+
 #### 0.1.3
 - major changes:
  - fixed bug in large feeds receiving
