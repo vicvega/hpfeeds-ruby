@@ -9,7 +9,7 @@ module HPFeeds
   OP_SUBSCRIBE = 4
 
   HEADERSIZE = 5
-  BLOCKSIZE  = 1024
+  BLOCKSIZE  = 1500
 
   class Client
     def initialize(options)
@@ -62,12 +62,12 @@ module HPFeeds
         raise Exception.new("Could not connect to broker: #{e}.")
       end
       @logger.debug("waiting for data")
-      header = recv_timeout(HEADERSIZE)
+      header = receive_data(HEADERSIZE, @timeout)
       opcode, len = @decoder.parse_header(header)
       @logger.debug("received header, opcode = #{opcode}, len = #{len}")
 
       if opcode == OP_INFO
-        data = recv_timeout(len)
+        data = receive_data(len-HEADERSIZE, @timeout)
         @logger.debug("received data = #{binary_to_hex(data)}")
         name, rand = @decoder.parse_info(data)
         @logger.debug("received INFO, name = #{name}, rand = #{binary_to_hex(rand)}")
@@ -119,17 +119,14 @@ module HPFeeds
       begin
         while !@stopped
           while @connected
-            header = @socket.recv(HEADERSIZE)
+            header = receive_data(HEADERSIZE)
             if header.empty?
               @connected = false
               break
             end
             opcode, len = @decoder.parse_header(header)
             @logger.debug("received header, opcode = #{opcode}, len = #{len}")
-            data = ''
-            while data.size < len - HEADERSIZE
-              data += @socket.recv(BLOCKSIZE)
-            end
+            data = receive_data(len - HEADERSIZE)
             if opcode == OP_ERROR
               unless error_callback.nil?
                 error_callback.call(data)
@@ -176,12 +173,20 @@ module HPFeeds
       @socket.send(message, 0)
     end
 
-    def recv_timeout(len)
-      if IO.select([@socket], nil, nil, @timeout)
-        @socket.recv(len)
+    def receive_data(max, timeout=nil)
+      if IO.select([@socket], nil, nil, timeout)
+        read_from_socket(max)
       else
         raise Exception.new("Connection receive timeout.")
       end
+    end
+
+    def read_from_socket(max, block = BLOCKSIZE)
+      data = ''
+      (max/block).times do
+        data += @socket.recv(block)
+      end
+      data += @socket.recv(max % block)
     end
 
     def get_log_level(level)
