@@ -34,7 +34,7 @@ def on_error(data)
 end
 
 begin
-  @hp = HPFeeds::Client.new ({
+  @hp = HPFeeds::Client.new({
     host:   hpfeeds_server_name_here,
     port:   hpfeeds_port_number_here,  # default is 10000
     ident:  'XXXXXX',
@@ -74,7 +74,7 @@ It's optional: if you don't provide any handler, an exception will be raised (`H
 ### Logging
 It's possibile to specify a path for log file (default is stdout) and a log level, as follows
 ```ruby
-  @hp = HPFeeds::Client.new ({
+  @hp = HPFeeds::Client.new({
     host:   hpfeeds_server_name_here,
     port:   hpfeeds_port_number_here,  # default is 10000
     ident:  'XXXXXX',
