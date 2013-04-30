@@ -1,3 +1,7 @@
+#### 0.1.5
+- major changes:
+ - fixed bug in socket data receiving (feed split in different TCP packets)
+
 #### 0.1.4
 - major changes:
  - fixed bug in socket data receiving

@@ -9,7 +9,6 @@ module HPFeeds
   OP_SUBSCRIBE = 4
 
   HEADERSIZE = 5
-  BLOCKSIZE  = 1500
 
   class Client
     def initialize(options)
@@ -181,12 +180,12 @@ module HPFeeds
       end
     end
 
-    def read_from_socket(max, block = BLOCKSIZE)
+    def read_from_socket(max)
       data = ''
-      (max/block).times do
-        data += @socket.recv(block)
+      while (data.size < max) do
+        data += @socket.recv(max - data.size)
       end
-      data += @socket.recv(max % block)
+      data
     end
 
     def get_log_level(level)
