@@ -52,6 +52,7 @@ end
 ```
 ### HPFeeds messages handler
 It's also possibile to set separate handlers for messages from different channels, as follows:
+
 ```ruby
 @hp.subscribe(chan1, chan2) do
   puts "Received something"
@@ -73,6 +74,7 @@ It's optional: if you don't provide any handler, an exception will be raised (`H
 
 ### Logging
 It's possibile to specify a path for log file (default is stdout) and a log level, as follows
+
 ```ruby
   @hp = HPFeeds::Client.new({
     host:   hpfeeds_server_name_here,
