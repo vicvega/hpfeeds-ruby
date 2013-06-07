@@ -1,3 +1,9 @@
+#### 0.1.7
+
+#### 0.1.6
+- minor changes:
+ - minor fixes in README
+
 #### 0.1.5
 - major changes:
  - fixed bug in socket data receiving (feed split in different TCP packets)
