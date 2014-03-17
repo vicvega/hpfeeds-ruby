@@ -145,6 +145,10 @@ module HPFeeds
           @logger.debug("Lost connection, trying to connect again...")
           tryconnect
         end
+      rescue Timeout => e
+        @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+        sleep(@sleepwait)
+        tryconnect
       rescue ErrorMessage => e
         @logger.warn("#{e.class} caugthed in main loop: #{e}")
         raise e
@@ -176,7 +180,7 @@ module HPFeeds
       if IO.select([@socket], nil, nil, timeout)
         read_from_socket(max)
       else
-        raise Exception.new("Connection receive timeout.")
+        raise Timeout.new("Connection receive timeout.")
       end
     end
 
