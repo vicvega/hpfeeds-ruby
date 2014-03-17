@@ -17,7 +17,7 @@ module HPFeeds
       @ident  = options[:ident]
       @secret = options[:secret]
 
-      @timeout   = options[:timeout]   || 3
+      @timeout   = options[:timeout]   || 30
       @reconnect = options[:reconnect] || true
       @sleepwait = options[:sleepwait] || 20
 
@@ -118,14 +118,14 @@ module HPFeeds
       begin
         while !@stopped
           while @connected
-            header = receive_data(HEADERSIZE)
+            header = receive_data(HEADERSIZE, @timeout)
             if header.empty?
               @connected = false
               break
             end
             opcode, len = @decoder.parse_header(header)
             @logger.debug("received header, opcode = #{opcode}, len = #{len}")
-            data = receive_data(len - HEADERSIZE)
+            data = receive_data(len - HEADERSIZE, @timeout)
             if opcode == OP_ERROR
               unless error_callback.nil?
                 error_callback.call(data)
