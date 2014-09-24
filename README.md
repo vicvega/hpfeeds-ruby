@@ -26,7 +26,7 @@ require "hpfeeds"
 def on_data(name, chan, payload)
   puts "[%s] %s: %s" % [ chan, name, payload ]
   # just an example here...
-  @hp.publish('channel', 'message')
+  @hp.publish('message', 'channel')
 end
 
 def on_error(data)
