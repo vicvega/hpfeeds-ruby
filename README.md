@@ -1,7 +1,5 @@
 # HPFeeds
 
-[![hpfeeds API Documentation](https://www.omniref.com/ruby/gems/hpfeeds.png)](https://www.omniref.com/ruby/gems/hpfeeds)
-
 This gem should be used to make easy to interact (publish, subscribe) with a [HPFeeds broker](https://redmine.honeynet.org/projects/hpfeeds/wiki).
 
 ## Installation
