@@ -18,7 +18,7 @@ module HPFeeds
       @secret = options[:secret]
 
       @timeout   = options[:timeout]   || 30
-      @reconnect = options[:reconnect] || true
+      @reconnect = options.fetch(:reconnect, true)
       @sleepwait = options[:sleepwait] || 20
 
       @connected = false
