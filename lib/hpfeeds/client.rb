@@ -46,6 +46,7 @@ module HPFeeds
           break
         rescue => e
           @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+          raise(e) unless @reconnect
           sleep(@sleepwait)
         end
       end
@@ -147,6 +148,7 @@ module HPFeeds
         end
       rescue Timeout => e
         @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+        raise(e) unless @reconnect
         sleep(@sleepwait)
         tryconnect
       rescue ErrorMessage => e
