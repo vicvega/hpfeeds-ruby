@@ -1,4 +1,7 @@
-#### 0.1.7
+#### 0.1.8 - current version, unreleased
+- Fix `reconnect: false` options
+
+#### 0.1.7 - 2017-03-31
 - Fix `reconnect: false` options
 
 #### 0.1.6
