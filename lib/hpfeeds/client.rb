@@ -12,20 +12,20 @@ module HPFeeds
 
   class Client
     def initialize(options)
-      @host   = options[:host]
-      @port   = options[:port] || 10000
-      @ident  = options[:ident]
-      @secret = options[:secret]
+      @host   = options.fetch(:host)
+      @port   = options.fetch(:port, 10000)
+      @ident  = options.fetch(:ident)
+      @secret = options.fetch(:secret)
 
-      @timeout   = options[:timeout]   || 30
+      @timeout   = options.fetch(:timeout, 30)
       @reconnect = options.fetch(:reconnect, true)
-      @sleepwait = options[:sleepwait] || 20
+      @sleepwait = options.fetch(:sleepwait, 20)
 
       @connected = false
       @stopped   = false
 
-      log_to    = options[:log_to] || STDOUT
-      log_level = options[:log_level] || :info
+      log_to    = options.fetch(:log_to, STDOUT)
+      log_level = options.fetch(:log_level, :info)
       @logger   = Logger.new(log_to)
       @logger.level = get_log_level(log_level)
 
