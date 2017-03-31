@@ -1,4 +1,4 @@
-# HPFeeds
+# HPFeeds [![Gem Version](https://badge.fury.io/rb/hpfeeds.svg)](https://badge.fury.io/rb/hpfeeds)
 
 This gem should be used to make easy to interact (publish, subscribe) with a [HPFeeds broker](https://redmine.honeynet.org/projects/hpfeeds/wiki).
 
