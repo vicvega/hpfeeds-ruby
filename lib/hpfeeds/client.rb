@@ -18,7 +18,7 @@ module HPFeeds
       @secret = options[:secret]
 
       @timeout   = options[:timeout]   || 30
-      @reconnect = options[:reconnect] || true
+      @reconnect = options.fetch(:reconnect, true)
       @sleepwait = options[:sleepwait] || 20
 
       @connected = false
@@ -45,7 +45,8 @@ module HPFeeds
           end
           break
         rescue => e
-          @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+          @logger.warn("#{e.class} caught while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+          raise(e) unless @reconnect
           sleep(@sleepwait)
         end
       end
@@ -146,14 +147,15 @@ module HPFeeds
           tryconnect
         end
       rescue Timeout => e
-        @logger.warn("#{e.class} caugthed while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+        @logger.warn("#{e.class} caught while connecting: #{e}. Reconnecting in #{@sleepwait} seconds...")
+        raise(e) unless @reconnect
         sleep(@sleepwait)
         tryconnect
       rescue ErrorMessage => e
-        @logger.warn("#{e.class} caugthed in main loop: #{e}")
+        @logger.warn("#{e.class} caught in main loop: #{e}")
         raise e
       rescue => e
-        message = "#{e.class} caugthed in main loop: #{e}\n"
+        message = "#{e.class} caught in main loop: #{e}\n"
         message += e.backtrace.join("\n")
         @logger.error(message)
       end
