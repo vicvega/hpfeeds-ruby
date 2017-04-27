@@ -1,4 +1,5 @@
 require 'hpfeeds/version'
+require 'timeout'
 
 module HPFeeds
   autoload :Client, 'hpfeeds/client'
