@@ -1,4 +1,6 @@
-#### 0.1.8 - current version, unreleased
+#### 0.1.9 - current version, unreleased
+
+#### 0.1.8 - 2017-04-28
 - Fix `uninitialized constant HPFeeds::TimeoutError`
 
 #### 0.1.7 - 2017-03-31
