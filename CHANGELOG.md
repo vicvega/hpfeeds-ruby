@@ -1,5 +1,5 @@
 #### 0.1.8 - current version, unreleased
--
+- Fix `uninitialized constant HPFeeds::TimeoutError`
 
 #### 0.1.7 - 2017-03-31
 - Fix `reconnect: false` options

@@ -1,5 +1,5 @@
 module HPFeeds
   class Exception < RuntimeError; end
   class ErrorMessage < RuntimeError; end
-  class Timeout < TimeoutError; end
+  class Timeout < RuntimeError; end
 end
